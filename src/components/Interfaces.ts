@@ -15,3 +15,13 @@ export interface InputProps extends BaseProps {
 export interface TextAreaProps extends BaseProps {
     onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
 }
+
+export interface Todo {
+    id: number
+    todo: string
+}
+
+export interface Product {
+    id: number
+    title: string
+}
