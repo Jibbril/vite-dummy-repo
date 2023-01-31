@@ -9,13 +9,13 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-        {/* <List1 />
-        <List2 /> */}
-        {/* <List3 /> */}
+        <List1 />
+        <List2 />
+        <List3 />
         <List4 />
-        {/* <Form1 />
+        <Form1 />
         <Form2 />
-        <Form3 /> */}
+        <Form3 />
     </QueryClientProvider>
   )
 }

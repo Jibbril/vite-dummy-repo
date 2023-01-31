@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useItems, useSwrItems } from "./hooks";
 import { Todo, Product } from "./Interfaces";
-import {
-  useQuery,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from "react-query";
+import { useQuery } from "react-query";
+import Buttons from "./Buttons";
+import ListItems from "./ListItems";
 
 // Standard fetch implementation with useEffect
 export function List1() {
@@ -15,29 +12,28 @@ export function List1() {
 
   useEffect(() => {
     handleItems(itemType);
-  }, [itemType]);
+  }, []);
 
   const handleItems = (type: string) => {
     fetch(`https://dummyjson.com/${type}`)
       .then((res) => res.json())
       .then((data) => {
-        if (type === "todos") setItems(data.todos.slice(0, 5));
-        else if (type === "products") setItems(data.products.slice(0, 5));
+        if (type === "todos") {
+            setItems(data.todos.slice(0, 5));
+            setItemType("todos");
+        }
+        else if (type === "products") {
+            setItems(data.products.slice(0, 5))
+            setItemType("products");
+        };
       });
   };
 
   return (
     <div>
-      <button onClick={() => setItemType("todos")}>Todos</button>
-      <button onClick={() => setItemType("products")}>Products</button>
-      <ul>
-        {itemType === "todos" &&
-          items &&
-          items.map(({ todo, id }: Todo) => <li key={id}>{todo}</li>)}
-        {itemType === "products" &&
-          items &&
-          items.map(({ title, id }: Product) => <li key={id}>{title}</li>)}
-      </ul>
+      <h2>Standard fetch</h2>
+      <Buttons handleClick={handleItems} />
+      <ListItems items={items} itemType={itemType} />
     </div>
   );
 }
@@ -49,16 +45,9 @@ export function List2() {
 
   return (
     <div>
-      <button onClick={() => setItemType("todos")}>Todos</button>
-      <button onClick={() => setItemType("products")}>Products</button>
-      <ul>
-        {itemType === "todos" &&
-          items &&
-          items.map(({ todo, id }: Todo) => <li key={id}>{todo}</li>)}
-        {itemType === "products" &&
-          items &&
-          items.map(({ title, id }: Product) => <li key={id}>{title}</li>)}
-      </ul>
+      <h2>Custom Hook</h2>
+      <Buttons handleClick={setItemType} />
+      <ListItems items={items} itemType={itemType} />
     </div>
   );
 }
@@ -67,23 +56,16 @@ export function List2() {
 export function List3() {
   const [itemType, setItemType] = useState("todos");
   const { items, isLoading } = useSwrItems(itemType);
-  console.log(items);
 
   if (isLoading) return <div>Loading...</div>;
+
+  const specifiedItems = itemType === "todos" ? items.todos : items.products;
+
   return (
     <div>
-      <button onClick={() => setItemType("todos")}>Todos</button>
-      <button onClick={() => setItemType("products")}>Products</button>
-      <ul>
-        {itemType === "todos" &&
-          items &&
-          items.todos.map(({ todo, id }: Todo) => <li key={id}>{todo}</li>)}
-        {itemType === "products" &&
-          items &&
-          items.products.map(({ title, id }: Product) => (
-            <li key={id}>{title}</li>
-          ))}
-      </ul>
+      <h2>SWR</h2>
+      <Buttons handleClick={setItemType} />
+      <ListItems items={specifiedItems} itemType={itemType} />
     </div>
   );
 }
@@ -91,26 +73,19 @@ export function List3() {
 // Use react query to handle the fetch
 export function List4() {
   const [itemType, setItemType] = useState("todos");
-  const { isLoading, error, data, isFetching } = useQuery(itemType, () =>
+  const { isLoading, data } = useQuery(itemType, () =>
     fetch(`https://dummyjson.com/${itemType}?limit=5`).then((res) => res.json())
   );
 
   if (isLoading) return <div>Loading...</div>;
 
+  const specifiedItems = itemType === "todos" ? data.todos : data.products;
+
   return (
     <>
-      <button onClick={() => setItemType("todos")}>Todos</button>
-      <button onClick={() => setItemType("products")}>Products</button>
-      <ul>
-        {itemType === "todos" &&
-          data.todos.map(({ todo, id }: Todo) => (
-            <li key={id}>{todo}</li>
-          ))}
-        {itemType === "products" &&
-          data.products.map(({ title, id }: Product) => (
-            <li key={id}>{title}</li>
-          ))}
-      </ul>
+      <h2>React Query</h2>
+      <Buttons handleClick={setItemType} />
+      <ListItems items={specifiedItems} itemType={itemType} />
     </>
   );
 }
